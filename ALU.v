@@ -22,14 +22,14 @@ module ALU(input [31:0] A, B, Y, input[4:0] op_sel, input clk, reset,
 								end
 			5'b10000		: 	Z = Multiply_res;//MUL
 			5'b01111 	:  Z = Divide_res;//DIV, remainder in Hi register
-			5'b00111 	: 	Z = Y >> B;//SHR
-			5'b01000 	: 	Z = $signed(Y) >>> B; //SHRA																	  
-			5'b01001 	: 	Z = Y << B;//SHL
-			5'b01010		: 	begin 
+			5'b01001 	: 	Z = Y >> B;//SHR
+			5'b01010 	: 	Z = $signed(Y) >>> B; //SHRA																	  
+			5'b01011 	: 	Z = Y << B;//SHL
+			5'b00111		: 	begin 
 									Z = (Y >> B) | (Y << 32 - B); //ROR
 									Z[63:32] = Z[63:32] & 0;
 								end
-			5'b01011		: 	begin 
+			5'b01000		: 	begin 
 									Z = (Y << B) | (Y >> 32 - B); //ROL
 									Z[63:32] = Z[63:32] & 0;
 								end
@@ -40,7 +40,10 @@ module ALU(input [31:0] A, B, Y, input[4:0] op_sel, input clk, reset,
 									Z = Z + 1;
 								end
 			5'b10010 	: 	Z = !(B);//NOT
-			default		: 	Z = 64'b0111111111111111111111111111111101111111111111111111111111111111; //default case
+			default		: 	begin //default case, run an addition operation
+									Z[31:0] = CLA_res[31:0];
+									Z[63:32] = Z[63:32] ^ Z[63:32];
+								end
 		endcase
 		
 		Zhigh = Z[63:32];

@@ -1,5 +1,5 @@
 `timescale 1ns/10ps
-module memory_tb();
+module mem_tb();
 	
 	reg clk, Write, Read, MDR_rd, MAR_rd;
 	wire[8:0] mem_addr;
@@ -16,6 +16,9 @@ module memory_tb();
 	MDR mem_data_reg(.Q(MDR_bus), .Clock(clk), .enable(MDR_rd), .Read_from_mem(Read), .in_from_bus(BusMuxOut), .Mdatain(Mdatain));
 	Register mem_addr_reg(.D(BusMuxOut), .Q(mem_addr), .clock(clk), .enable(MAR_rd));
 	
+	
+	//Simulate a load from address 0x54 (should read 0x97 from that address)
+	//Then, simulate a store to address 0x34 (will store the value 0xB6, initial value at 0x34 = 0x25)
 	initial begin
 		//Assert initial values
 		clk <= 0;
@@ -28,12 +31,12 @@ module memory_tb();
 		
 		//memory unit operation (Reading a cell): 2 clock cycles
 		//Determine address to access: 1 cycle
-		BusMuxOut <= 32'd510;
+		BusMuxOut <= 9'h54;
 		MAR_rd <= 1;
 		#10
 		MAR_rd <= 0;
 		
-		//Read accessed cell from memory (data visible on MDR_bus, in this case 510): 1 cycle
+		//Read accessed cell from memory (data visible on MDR_bus, in this case 0x97): 1 cycle
 		Read <= 1;
 		MDR_rd <=1;
 		#10
@@ -44,7 +47,7 @@ module memory_tb();
 		
 		//memory unit operation (Writing to a cell): 3 cycles, extra cycles in this example for illustrative steps
 		//Determine address to access, and read current value into MDR for comparison's sake: 1 cycle
-		BusMuxOut <= 32'd45;
+		BusMuxOut <= 32'h34;
 		MAR_rd <= 1;
 		Read <= 1;
 		#10
@@ -52,7 +55,7 @@ module memory_tb();
 		Read <= 0;
 		
 		//Read value to be written into MDR: 1 cycle
-		BusMuxOut <= 32'd190;
+		BusMuxOut <= 9'h80;
 		Read <= 0; //Ensure Read-From-Memory signal is low so Bus input is read
 		MDR_rd <= 1;
 		#10

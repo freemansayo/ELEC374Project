@@ -111,7 +111,7 @@ begin
 				#10 R_out[3] <= 0; Yin <= 0;
 		end
 		T4: begin
-				R_out[7] <= 1; opcode <= 5'b01001; Zlowin <= 1; 
+				R_out[7] <= 1; opcode <= 5'b01011; Zlowin <= 1; 
 				#25 R_out[7] <= 0; Zlowin <= 0; 
 		end
 		T5: begin

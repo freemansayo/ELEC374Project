@@ -6,12 +6,12 @@ module select_and_encode(input[31:0] IRin, input Gra, Grb, Grc, Rin, Rout, BAout
 		assign Rb = IRin[22:19];
 		assign Rc = IRin[18:15];
 		
-		wire[3:0] Decoder_in;
-		assign Decoder_in = (Ra & Gra) | (Rb & Grb) | (Rc & Grc);
-		
+		reg[3:0] Decoder_in;
 		reg[15:0] Decoder_out;
+		
 		//4-to-16 Decoder
-		always @(Decoder_in) begin
+		always @(Gra or Grb or Grc) begin
+			Decoder_in = (Ra & {4{Gra}}) | (Rb & {4{Grb}}) | (Rc & {4{Grc}});
 			case(Decoder_in)
 				default : Decoder_out <= 16'b0;
 				4'b0000 : Decoder_out <= 16'b0000000000000001;
