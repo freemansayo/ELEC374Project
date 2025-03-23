@@ -9,6 +9,8 @@ module Datapath(//clock:
 					 Read, Write,
 					 //S&E control signals
 					 Gra, Grb, Grc, BAout,
+					 //CON_FF flipflop enable
+					 CONin,
 					 //Used in division circuitry
 					 reset_div, 
 					 input[4:0] op_sel,
@@ -27,7 +29,7 @@ module Datapath(//clock:
 					 output[31:0] r0_view, r1_view, r2_view, r3_view, r4_view, r5_view, r6_view, r7_view, r8_view, r9_view, r10_view, r11_view, r12_view, r13_view, r14_view, r15_view,
 									  HI_view, LO_view, Zhi_view, Zlo_view, PC_view, MDR_view, MAR_view, Inport_view, Outport_view, C_extended_view,									  
 									  regControl_view, Y_view, IR_view,
-					output calc_finished, con_ff_view
+					output calc_finished, CON_output
 					);	
 
 	//Register data signals (going to bus)
@@ -129,9 +131,9 @@ module Datapath(//clock:
 	Register IR(.D(BusMuxOut), .Q(IR_contents), .clear(clr), .clock(clk), .enable(IR_rd));
 	assign IR_view = IR_contents;
 	select_and_encode SEL_E_inst(.IRin(IR_contents), .Gra(Gra), .Grb(Grb), .Grc(Grc), .Rin(Rin), .Rout(R_out), .BAout(BAout), .C_extended(extended_val), .R_rd(R_rd), .R_wrt(R_wrt));
-	
+	assign  C_extended_view = extended_val;
 //CON_FF Instantiation
-	CON_FF con_ff_inst(.IRin(IR_contents), .BusIn(BusMuxOut), .to_ctrl(con_ff_view));
+	CON_FF con_ff_inst(.IR_out(IR_contents[22:19]), .CON_input(CONin), .BusMuxOut(BusMuxOut), .CON_output(CON_output));
 	
 
 endmodule
