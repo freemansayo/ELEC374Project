@@ -24,7 +24,7 @@ module Datapath(//clock:
 					 input R_out, MDR_out, MAR_out, HI_out, LO_out, Zhi_out, Zlo_out, PC_out, In_out, Out_out, C_out,
 					 input[31:0] In_input,
 					 
-					 output[31: 0] BusMuxOut,
+					 output[31: 0] BusMuxOut, Input_unit,
 					 //To view register contents
 					 output[31:0] r0_view, r1_view, r2_view, r3_view, r4_view, r5_view, r6_view, r7_view, r8_view, r9_view, r10_view, r11_view, r12_view, r13_view, r14_view, r15_view,
 									  HI_view, LO_view, Zhi_view, Zlo_view, PC_view, MDR_view, MAR_view, Inport_view, Outport_view, C_extended_view,									  
@@ -77,17 +77,13 @@ module Datapath(//clock:
 	
 	wire[31:0] extended_val;
 	
-//Instantiate unique general registers HI, LO, I/OPorts, C, and PC
+//Instantiate unique general registers HI, LO, C_extended, and PC
 	Register HIreg(.D(BusMuxOut), .Q(HI_bus), .clear(clr), .clock(clk), .enable(HI_rd));
 	Register LOreg(.D(BusMuxOut), .Q(LO_bus), .clear(clr), .clock(clk), .enable(LO_rd));	
-	Inport Inport_inst(.D(In_out), .Q(In_bus), .clear(clr), .clock(clk));
-	Outport Outport_inst(.D(BusMuxOut), .Q(Outport_view), .clear(clr), .clock(clk), .enable(Out_rd));
-	Register C_extended(.D(extended_val), .Q(C_bus), .clear(clr), .clock(clk), .enable(1));
 	PCreg PC(.D(BusMuxOut), .Q(PC_bus), .clr(clr), .clk(clk), .increment(IncPC), .enable(PC_rd));
 		
 	assign HI_view = HI_bus;
 	assign LO_view = LO_bus;
-	assign Inport_view = In_bus;
 	assign PC_view = PC_bus;
 	
 //Bus Instantiation
@@ -119,22 +115,28 @@ module Datapath(//clock:
 //Memory, MAR & MDR Instantiation
 	wire[8:0] mem_addr;
 	wire[31:0] Mdatain;
-	
 	MDR mem_data_reg(.in_from_bus(BusMuxOut), .Mdatain(Mdatain), .Q(MDR_bus), .Clear(clr), .Clock(clk), .enable(MDR_rd), .Read_from_mem(Read));
 	MAR mem_addr_reg(.D(BusMuxOut), .Q(mem_addr), .clear(clr), .clock(clk), .enable(MAR_rd), .enable_diog(0));
 	assign MDR_view = MDR_bus;
 	assign MAR_view = mem_addr;	
 	memory memory_inst(.Datain(MDR_bus), .Address(mem_addr), .Write(Write), .clk(clk), .Dataout(Mdatain));
 	
-//S&E and IR Instantiation
+//S&E, IR and C_extended Instantiation
 	wire[31:0] IR_contents;
 	Register IR(.D(BusMuxOut), .Q(IR_contents), .clear(clr), .clock(clk), .enable(IR_rd));
+	Register C_extended(.D(extended_val), .Q(C_bus), .clear(clr), .clock(clk), .enable(1));
 	assign IR_view = IR_contents;
-	select_and_encode SEL_E_inst(.IRin(IR_contents), .Gra(Gra), .Grb(Grb), .Grc(Grc), .Rin(Rin), .Rout(R_out), .BAout(BAout), .C_extended(extended_val), .R_rd(R_rd), .R_wrt(R_wrt));
 	assign  C_extended_view = extended_val;
+	select_and_encode SEL_E_inst(.IRin(IR_contents), .Gra(Gra), .Grb(Grb), .Grc(Grc), .Rin(Rin), .Rout(R_out), .BAout(BAout), .C_extended(extended_val), .R_rd(R_rd), .R_wrt(R_wrt));
+	
 //CON_FF Instantiation
 	CON_FF con_ff_inst(.IR_out(IR_contents[22:19]), .CON_input(CONin), .BusMuxOut(BusMuxOut), .CON_output(CON_output));
-	
+
+//Inport + Outport Instantiation
+	Inport Inport_inst(.D(Input_unit), .Q(In_bus), .clear(clr), .clock(clk));
+	Outport Outport_inst(.D(BusMuxOut), .Q(Out_bus), .clear(clr), .clock(clk), .enable(Out_rd));
+	assign Inport_view = In_bus;
+	assign Outport_view = Out_bus;
 
 endmodule
 	
