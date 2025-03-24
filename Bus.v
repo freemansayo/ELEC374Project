@@ -23,6 +23,7 @@ module Bus(
 	input [31: 0] PC,
 	input [31: 0] MDR,
 	input [31: 0] Inport,
+	input [31: 0] Outport,
 	input [31: 0] C_extended,
 	input [31: 0] Data,
 	output reg [31: 0] BusMuxOut);
@@ -56,7 +57,8 @@ module Bus(
 			5'b10100 : BusMuxOut <= PC;
 			5'b10101 : BusMuxOut <= MDR;
 			5'b10110 : BusMuxOut <= Inport;
-			5'b10111 : BusMuxOut <= C_extended;
+			5'b10111 : BusMuxOut <= Outport;
+			5'b11000 : BusMuxOut <= C_extended;
 			default	: BusMuxOut <= r0;
 		endcase
 	end

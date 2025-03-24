@@ -1,6 +1,6 @@
-// jump datapath_tb.v file: jump_datapath_tb
+// mfhi datapath_tb.v file: jump_datapath_tb
 `timescale 1ns/10ps
-module jump_datapath_tb;
+module mfhi_datapath_tb;
 //NOTE: USE ONLY THIS TB FOR BRANCH DEMOS, ACCESS "init_jr.hex" AND CHANGE THE MEMORY VALUES TO SWITCH
 	//INSTRUCTIONS
 	
@@ -9,26 +9,26 @@ module jump_datapath_tb;
 	reg[15:0] R_wrt;
 	reg[4:0] op_sel;
 	reg R_out, HI_out, LO_out, Zhi_out, Zlo_out, PC_out, MDR_out, MAR_out, In_out, C_out;
-	reg Rin, MARin, Zlowin, PCin, MDRin, IRin, Yin, CONin;
+	reg Rin, MARin, Zlowin, PCin, MDRin, IRin, Yin, CONin, HI_rd;
 	reg IncPC, Read, Write, Gra, Grb, Grc, BAout;
 	reg clk, clear;
 	
-    parameter Default = 0, Reg_loadR5a = 1, Reg_loadR5b = 2, Reg_loadR5c = 3,
-              Reg_loadR8a = 4, Reg_loadR8b = 5, Reg_loadR8c = 6,
-              Reg_loadPCa = 7, Reg_loadPCb = 8, Reg_loadPCc = 9,
-              T0 = 10, T1 = 11, T2 = 12, T3 = 13, T4 = 14;
+    parameter Default = 0, Reg_loadR3a = 1, Reg_loadR3b = 2, Reg_loadR3c = 3,
+              Reg_loadHIa = 4, Reg_loadHIb = 5, Reg_loadHIc = 6,
+              T0 = 7, T1 = 8, T2 = 9, T3 = 10, T4 = 11;
 	
 	reg [4:0] Present_state = Default;
 	
 	// Want to view following signals on monitor
 	wire [8:0] MAR_v;
-	wire [31:0] MDR_v, r5_v, r8_v, C_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
+	wire [31:0] MDR_v, r3_v, HI_v, C_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
 	wire CON_out;
 	
-	Datapath DUT(.R_rd_diog(R_rd), .R_wrt_diog(R_wrt), .Rin(Rin), .CONin(CONin), .R_out(R_out), .HI_out(HI_out), .LO_out(LO_out), .Zhi_out(Zhi_out), .Zlo_out(Zlo_out), .PC_out(PC_out), .MDR_out(MDR_out), 
+	
+	Datapath DUT(.R_rd_diog(R_rd), .R_wrt_diog(R_wrt), .Rin(Rin), .HI_rd(HI_rd), .CONin(CONin), .R_out(R_out), .HI_out(HI_out), .LO_out(LO_out), .Zhi_out(Zhi_out), .Zlo_out(Zlo_out), .PC_out(PC_out), .MDR_out(MDR_out), 
 					 .MAR_out(MAR_out), .In_out(In_out), .C_out(C_out), .CON_output(CON_out), .MAR_rd(MARin), .Zlo_rd(Zlowin), .PC_rd(PCin), .MDR_rd(MDRin), .IR_rd(IRin), .Y_rd(Yin),
 					 .IncPC(IncPC), .Read(Read), .Write(Write), .clk(clk), .clr(clear), .Gra(Gra), .Grb(Grb), .Grc(Grc), .BAout(BAout),
-					 .r5_view(r5_v), .r8_view(r8_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
+					 .r3_view(r3_v), .HI_view(HI_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
 					 .PC_view(PC_v), .IR_view(IR_v), .C_extended_view(C_v));
 	// add test logic here
 initial 
@@ -38,16 +38,13 @@ initial
 end
     always @(posedge clk) begin
         case (Present_state)
-            Default        : #40 Present_state = Reg_loadR5a;
-            Reg_loadR5a    : #40 Present_state = Reg_loadR5b;
-            Reg_loadR5b    : #40 Present_state = Reg_loadR5c;
-            Reg_loadR5c    : #40 Present_state = Reg_loadR8a;
-            Reg_loadR8a    : #40 Present_state = Reg_loadR8b;
-            Reg_loadR8b    : #40 Present_state = Reg_loadR8c;
-            Reg_loadR8c    : #40 Present_state = Reg_loadPCa;
-            Reg_loadPCa    : #40 Present_state = Reg_loadPCb;
-            Reg_loadPCb    : #40 Present_state = Reg_loadPCc;
-            Reg_loadPCc    : #40 Present_state = T0;
+            Default        : #40 Present_state = Reg_loadR3a;
+            Reg_loadR3a    : #40 Present_state = Reg_loadR3b;
+            Reg_loadR3b    : #40 Present_state = Reg_loadR3c;
+            Reg_loadR3c    : #40 Present_state = Reg_loadHIa;
+            Reg_loadHIa    : #40 Present_state = Reg_loadHIb;
+            Reg_loadHIb    : #40 Present_state = Reg_loadHIc;
+            Reg_loadHIc    : #40 Present_state = T0;
             T0             : #40 Present_state = T1;
             T1             : #40 Present_state = T2;
             T2             : #40 Present_state = T3;
@@ -83,35 +80,35 @@ always @(Present_state)
 				clear <= 0;
 			end
 			
-			// Load jump target into R5 (memory[0])
-         Reg_loadR5a: begin 
+			// Load R3 initial value (memory[0])
+         Reg_loadR3a: begin 
 				PC_out <= 1; MARin <= 1;
 				#20
 				PC_out <= 0; MARin <= 0; 
 			end
-           Reg_loadR5b: begin 
+           Reg_loadR3b: begin 
 				MDRin <= 1; Read <= 1;
 				#20
 				MDRin <= 0; Read <= 0;
 			end
-           Reg_loadR5c: begin 
+           Reg_loadR3c: begin 
 				IncPC <= 1;
 				#5 
 				IncPC <= 0; 
-				MDR_out <= 1; R_rd[5] <= 1; Rin <= 1;
+				MDR_out <= 1; R_rd[3] <= 1;
             #15 
-				MDR_out <= 0; R_rd[5] <= 0; Rin <= 0;
+				MDR_out <= 0; R_rd[3] <= 0;
 			end
 			
-			//Load initial value into R8, first fetch from address 0 and place that data into MDR
-			Reg_loadR8a: begin
+			//Load HI reg initial value
+			Reg_loadHIa: begin
 				PC_out <= 1; MARin <= 1;
 				#20
 				PC_out <= 0; MARin <= 0; 
 			end
 			
 			//Place data at address 0 into MDR
-			Reg_loadR8b: begin
+			Reg_loadHIb: begin
 				MDRin <= 1;
 				Read <= 1;
 				#20
@@ -119,40 +116,15 @@ always @(Present_state)
 				Read <= 0;
 			end
 			
-			//Place data from MDR into R8
-			Reg_loadR8c: begin
-				IncPC <= 1;
-				#5
-				IncPC <= 0;
-				MDR_out<= 1; R_rd[8] <= 1; 
-				#15
-				MDR_out <= 0; R_rd[8] <= 0;
-			end
-			
-			//Load initial value into PC, first fetch from address 1 and place that data into MDR
-			Reg_loadPCa: begin
-				PC_out <= 1; MARin <= 1;
+			//Place data from MDR into HI
+			Reg_loadHIc: begin
+				MDR_out<= 1; HI_rd <= 1; 
 				#20
-				PC_out <= 0; MARin <= 0; 
+				MDR_out <= 0; HI_rd <= 0;
 			end
 			
-			//Place data at address 1 into MDR
-			Reg_loadPCb: begin
-				MDRin <= 1;
-				Read <= 1;
-				#20
-				MDRin <= 0;
-				Read <= 0;
-			end
 			
-			//Place data from MDR into PC
-			Reg_loadPCc: begin
-				MDR_out<= 1; PCin <= 1; 
-				#20
-				MDR_out <= 0; PCin <= 0;
-			end
-			
-		//Start executing Case 1: jr R8 
+		//Start executing mfhi r3 
 			T0: begin 
 				IncPC <= 1;
 				#5
@@ -174,10 +146,10 @@ always @(Present_state)
 				MDR_out <= 0; IRin <= 0;
 			end
 
-			T3: begin // Load in the contents of R8 into PC register
-				Gra <= 1; R_out <= 1; PCin <= 1;
+			T3: begin // Load contents of HI register into R3
+				Gra <= 1; Rin <= 1; HI_out <= 1;
 				#20
-				Gra <= 0; R_out <= 0; PCin <= 0;
+				Gra <= 0; Rin <= 0; HI_out <= 0;
 			end
 
 		endcase

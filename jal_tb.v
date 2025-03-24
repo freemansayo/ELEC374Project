@@ -17,13 +17,13 @@ module jal_tb;
     reg [4:0] Present_state = Default;
 
     wire [8:0] MAR_v;
-    wire [31:0] MDR_v, r1_v, C_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
+    wire [31:0] MDR_v, r5_v, r8_v, C_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
     wire CON_out;
 
     Datapath DUT(.R_rd_diog(R_rd), .R_wrt_diog(R_wrt), .Rin(Rin), .CONin(CONin), .R_out(R_out), .HI_out(HI_out), .LO_out(LO_out), .Zhi_out(Zhi_out), .Zlo_out(Zlo_out), .PC_out(PC_out), .MDR_out(MDR_out), 
                  .MAR_out(MAR_out), .In_out(In_out), .C_out(C_out), .CON_output(CON_out), .MAR_rd(MARin), .Zlo_rd(Zlowin), .PC_rd(PCin), .MDR_rd(MDRin), .IR_rd(IRin), .Y_rd(Yin),
                  .IncPC(IncPC), .Read(Read), .Write(Write), .clk(clk), .clr(clear), .Gra(Gra), .Grb(Grb), .Grc(Grc), .BAout(BAout),
-                 .r1_view(r1_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
+                 .r5_view(r5_v), .r8_view(r8_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
                  .PC_view(PC_v), .IR_view(IR_v), .C_extended_view(C_v));
 
     initial begin
@@ -50,6 +50,7 @@ module jal_tb;
         endcase
     end
 
+	 //Execute jal R5
     always @(Present_state) begin
         case (Present_state)
             Default: begin
@@ -96,9 +97,11 @@ module jal_tb;
                        #20 MDR_out <= 0; IRin <= 0;
             end
 
-            // Save PC+1 into R15
-            T3: begin Zlo_out <= 1; R_rd[15] <= 1; Rin <= 1;
-								#20 Zlo_out <= 0; R_rd[15] <= 0; Rin <= 0;
+            // Save PC+1 into R8
+            T3: begin 
+				Zlo_out <= 1; R_rd[8] <= 1; Rin <= 1;
+				#15 
+				Zlo_out <= 0; R_rd[8] <= 0; Rin <= 0;
 				end
 
 

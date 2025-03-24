@@ -94,8 +94,8 @@ module Datapath(//clock:
 	
 	assign regControl_view = regControl;
 	Bus bus_inst(.r0(r0_bus), .r1(r1_bus), .r2(r2_bus), .r3(r3_bus), .r4(r4_bus), .r5(r5_bus), .r6(r6_bus), .r7(r7_bus), .r8(r8_bus), .r9(r9_bus), .r10(r10_bus), .r11(r11_bus),
-					 .r12(r12_bus), .r13(r13_bus), .r14(r14_bus), .r15(r15_bus), .HIreg(HI_bus), .LOreg(LO_bus), .Zhigh(Zhi_bus), .Zlo(Zlo_bus), .PC(PC_bus), .MDR(MDR_bus), .Inport(In_bus),
-					 .C_extended(C_bus), .Data(regControl), .BusMuxOut(BusMuxOut));
+					 .r12(r12_bus), .r13(r13_bus), .r14(r14_bus), .r15(r15_bus), .HIreg(HI_bus), .LOreg(LO_bus), .Zhigh(Zhi_bus), .Zlo(Zlo_bus), .PC(PC_bus), .MDR(MDR_bus), 
+					 .Inport(In_bus), .Outport(Out_bus), .C_extended(C_bus), .Data(regControl), .BusMuxOut(BusMuxOut));
 	
 //ALU Instantiation
 	wire[31:0] Y_contents;
@@ -124,7 +124,7 @@ module Datapath(//clock:
 //S&E, IR and C_extended Instantiation
 	wire[31:0] IR_contents;
 	Register IR(.D(BusMuxOut), .Q(IR_contents), .clear(clr), .clock(clk), .enable(IR_rd));
-	Register C_extended(.D(extended_val), .Q(C_bus), .clear(clr), .clock(clk), .enable(1));
+	Register C_extended(.D(extended_val), .Q(C_bus), .clear(clr), .clock(clk), .enable(1'b1));
 	assign IR_view = IR_contents;
 	assign  C_extended_view = extended_val;
 	select_and_encode SEL_E_inst(.IRin(IR_contents), .Gra(Gra), .Grb(Grb), .Grc(Grc), .Rin(Rin), .Rout(R_out), .BAout(BAout), .C_extended(extended_val), .R_rd(R_rd), .R_wrt(R_wrt));
@@ -133,10 +133,8 @@ module Datapath(//clock:
 	CON_FF con_ff_inst(.IR_out(IR_contents[22:19]), .CON_input(CONin), .BusMuxOut(BusMuxOut), .CON_output(CON_output));
 
 //Inport + Outport Instantiation
-	Inport Inport_inst(.D(Input_unit), .Q(In_bus), .clear(clr), .clock(clk));
-	Outport Outport_inst(.D(BusMuxOut), .Q(Out_bus), .clear(clr), .clock(clk), .enable(Out_rd));
+	Inport Inport_inst(.D(In_input), .Q(In_bus), .clear(clr), .clock(clk));
+	Outport Outport_inst(.D(BusMuxOut), .Q(Outport_view), .clear(clr), .clock(clk), .enable(Out_rd));
 	assign Inport_view = In_bus;
-	assign Outport_view = Out_bus;
-
 endmodule
 	
