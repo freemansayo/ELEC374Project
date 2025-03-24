@@ -1,7 +1,7 @@
 // jump datapath_tb.v file: jump_datapath_tb
 `timescale 1ns/10ps
 module jump_datapath_tb;
-//NOTE: USE ONLY THIS TB FOR BRANCH DEMOS, ACCESS "init_br.hex" AND CHANGE THE MEMORY VALUES TO SWITCH
+//NOTE: USE ONLY THIS TB FOR BRANCH DEMOS, ACCESS "init_jr.hex" AND CHANGE THE MEMORY VALUES TO SWITCH
 	//INSTRUCTIONS
 	
 	//ONLY USED FOR PRELOADING REGISTERS, USE OTHER SIGNALS FOR REGISTER CONTROL IN MAIN TB BODY
@@ -14,11 +14,11 @@ module jump_datapath_tb;
 	reg clk, clear;
 	parameter Default = 0, 	Reg_load1a = 1, Reg_load1b = 2, Reg_load1c = 3,
 									Reg_loadPCa = 4, Reg_loadPCb = 5, Reg_loadPCc = 6,
-									T0 = 7, T1 = 8, T2 = 9, T3 = 10, T4 = 11, T5 = 12, T6 = 13;
+									T0 = 7, T1 = 8, T2 = 9, T3 = 10;
 	
 	reg [4:0] Present_state = Default;
 	
-	//Want to view following signals on monitor
+	// Want to view following signals on monitor
 	wire [8:0] MAR_v;
 	wire [31:0] MDR_v, r1_v, C_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
 	wire CON_out;
@@ -47,8 +47,6 @@ end
 					 T0					:	#40 Present_state = T1;
                 T1					:	#40 Present_state = T2;
                 T2					:	#40 Present_state = T3;
-                T3					:	#40 Present_state = T4;
-					 
 		    endcase
 	end
 //Location of instructions:
@@ -58,26 +56,29 @@ end
 //R1 = DEFINED VALUE BASED ON TEST, located at address 0
 //PC = DEFINED VALUE BASED ON TEST, located at address 1 (points to address of instruction minus 1)
 always @(Present_state) 
-
 	begin
 		case (Present_state) 
 			Default: begin
 				//initialize write-to-bus signals
 				R_out <= 0; HI_out <= 0; LO_out <= 0; Zhi_out <= 0; Zlo_out <= 0; PC_out <= 0; MDR_out <= 0; MAR_out <= 0; BAout <= 0; R_wrt <= 0; 
 				In_out <= 0; C_out <= 0;
+				
 				//initialize read-from-bus signals
 				MARin <= 0; Zlowin <= 0; PCin <=0; MDRin <= 0; IRin <= 0; Yin <= 0; Rin <= 0; R_rd <= 0; CONin <= 0;
+				
 				//initialize memory-related signals
 				IncPC <= 0; Read <= 0;
+				
 				//Initialize S&E-Related signals
 				Gra <= 0; Grb <= 0; Grc <= 0;
+				
 				//Flush registers in case r0 gets used
 				clear <= 1;
 				#20
 				clear <= 0;
 			end
 			
-			//Load initial value into R1, first fetch from address 0 and place that data into MDR
+			//Load initial value into R8, first fetch from address 0 and place that data into MDR
 			Reg_load1a: begin
 				PC_out <= 1; MARin <= 1;
 				#20
@@ -93,14 +94,14 @@ always @(Present_state)
 				Read <= 0;
 			end
 			
-			//Place data from MDR into R1
+			//Place data from MDR into R8
 			Reg_load1c: begin
 				IncPC <= 1;
 				#5
 				IncPC <= 0;
-				MDR_out<= 1; R_rd[1] <= 1; 
+				MDR_out<= 1; R_rd[8] <= 1; 
 				#15
-				MDR_out <= 0; R_rd[1] <= 0;
+				MDR_out <= 0; R_rd[8] <= 0;
 			end
 			
 			//Load initial value into PC, first fetch from address 1 and place that data into MDR
@@ -148,7 +149,7 @@ always @(Present_state)
 				MDR_out <= 0; IRin <= 0;
 			end
 
-			T3: begin // Load in contents of MDR into PC register
+			T3: begin // Load in the contents of R8 into PC register
 				Gra <= 1; R_out <= 1; PCin <= 1;
 				#20
 				Gra <= 0; R_out <= 0; PCin <= 0;
