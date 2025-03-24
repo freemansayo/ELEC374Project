@@ -12,7 +12,7 @@ module jump_datapath_tb;
 	reg Rin, MARin, Zlowin, PCin, MDRin, IRin, Yin, CONin;
 	reg IncPC, Read, Write, Gra, Grb, Grc, BAout;
 	reg clk, clear;
-	parameter Default = 0, 	Reg_load1a = 1, Reg_load1b = 2, Reg_load1c = 3,
+	parameter Default = 0, 	Reg_load8a = 1, Reg_load8b = 2, Reg_load8c = 3,
 									Reg_loadPCa = 4, Reg_loadPCb = 5, Reg_loadPCc = 6,
 									T0 = 7, T1 = 8, T2 = 9, T3 = 10;
 	
@@ -20,13 +20,13 @@ module jump_datapath_tb;
 	
 	// Want to view following signals on monitor
 	wire [8:0] MAR_v;
-	wire [31:0] MDR_v, r1_v, C_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
+	wire [31:0] MDR_v, r8_v, C_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
 	wire CON_out;
 	
 	Datapath DUT(.R_rd_diog(R_rd), .R_wrt_diog(R_wrt), .Rin(Rin), .CONin(CONin), .R_out(R_out), .HI_out(HI_out), .LO_out(LO_out), .Zhi_out(Zhi_out), .Zlo_out(Zlo_out), .PC_out(PC_out), .MDR_out(MDR_out), 
 					 .MAR_out(MAR_out), .In_out(In_out), .C_out(C_out), .CON_output(CON_out), .MAR_rd(MARin), .Zlo_rd(Zlowin), .PC_rd(PCin), .MDR_rd(MDRin), .IR_rd(IRin), .Y_rd(Yin),
 					 .IncPC(IncPC), .Read(Read), .Write(Write), .clk(clk), .clr(clear), .Gra(Gra), .Grb(Grb), .Grc(Grc), .BAout(BAout),
-					 .r1_view(r1_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
+					 .r8_view(r8_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
 					 .PC_view(PC_v), .IR_view(IR_v), .C_extended_view(C_v));
 	// add test logic here
 initial 
@@ -37,10 +37,10 @@ end
 	always @(posedge clk)
         begin
             case (Present_state)
-                Default			   :	#40 Present_state = Reg_load1a;
-					 Reg_load1a 		:	#40 Present_state = Reg_load1b;
-					 Reg_load1b			:	#40 Present_state = Reg_load1c;
-					 Reg_load1c			:	#40 Present_state = Reg_loadPCa;
+                Default			   :	#40 Present_state = Reg_load8a;
+					 Reg_load8a 		:	#40 Present_state = Reg_load8b;
+					 Reg_load8b			:	#40 Present_state = Reg_load8c;
+					 Reg_load8c			:	#40 Present_state = Reg_loadPCa;
 					 Reg_loadPCa 		:	#40 Present_state = Reg_loadPCb;
 					 Reg_loadPCb		:	#40 Present_state = Reg_loadPCc;
 					 Reg_loadPCc		:	#40 Present_state = T0;
@@ -79,14 +79,14 @@ always @(Present_state)
 			end
 			
 			//Load initial value into R8, first fetch from address 0 and place that data into MDR
-			Reg_load1a: begin
+			Reg_load8a: begin
 				PC_out <= 1; MARin <= 1;
 				#20
 				PC_out <= 0; MARin <= 0; 
 			end
 			
 			//Place data at address 0 into MDR
-			Reg_load1b: begin
+			Reg_load8b: begin
 				MDRin <= 1;
 				Read <= 1;
 				#20
@@ -95,7 +95,7 @@ always @(Present_state)
 			end
 			
 			//Place data from MDR into R8
-			Reg_load1c: begin
+			Reg_load8c: begin
 				IncPC <= 1;
 				#5
 				IncPC <= 0;
