@@ -68,7 +68,7 @@ always @(Present_state)
 				
 				//initialize memory-related signals
 				IncPC <= 0; Read <= 0;
-				
+					
 				//Initialize S&E-Related signals
 				Gra <= 0; Grb <= 0; Grc <= 0;
 				
