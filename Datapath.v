@@ -95,7 +95,7 @@ module Datapath(//clock:
 	assign regControl_view = regControl;
 	Bus bus_inst(.r0(r0_bus), .r1(r1_bus), .r2(r2_bus), .r3(r3_bus), .r4(r4_bus), .r5(r5_bus), .r6(r6_bus), .r7(r7_bus), .r8(r8_bus), .r9(r9_bus), .r10(r10_bus), .r11(r11_bus),
 					 .r12(r12_bus), .r13(r13_bus), .r14(r14_bus), .r15(r15_bus), .HIreg(HI_bus), .LOreg(LO_bus), .Zhigh(Zhi_bus), .Zlo(Zlo_bus), .PC(PC_bus), .MDR(MDR_bus), 
-					 .Inport(In_bus), .Outport(Out_bus), .C_extended(C_bus), .Data(regControl), .BusMuxOut(BusMuxOut));
+					 .Inport(In_bus), .C_extended(C_bus), .Data(regControl), .BusMuxOut(BusMuxOut));
 	
 //ALU Instantiation
 	wire[31:0] Y_contents;

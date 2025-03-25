@@ -84,13 +84,18 @@ module jal_tb;
             Reg_loadPCc: begin MDR_out <= 1; PCin <= 1; #20 MDR_out <= 0; PCin <= 0; end
 
             // Fetch jal R5 instruction
-            T0: begin IncPC <= 1; #5 IncPC <= 0;
-                       PC_out <= 1; MARin <= 1; Zlowin <= 1;
-                       #15 PC_out <= 0; MARin <= 0; Zlowin <= 0;
+            T0: begin 
+					IncPC <= 1; 
+					#5 IncPC <= 0;
+               PC_out <= 1; MARin <= 1; Zlowin <= 1;
+               #15 
+					PC_out <= 0; MARin <= 0; Zlowin <= 0;
             end
 
-            T1: begin Zlo_out <= 1; PCin <= 1; Read <= 1; MDRin <= 1;
-                       #20 Zlo_out <= 0; PCin <= 0; Read <= 0; MDRin <= 0;
+            T1: begin 
+					Zlo_out <= 1; PCin <= 1; Read <= 1; MDRin <= 1;
+               #20 
+					Zlo_out <= 0; PCin <= 0; Read <= 0; MDRin <= 0;
             end
 
             T2: begin MDR_out <= 1; IRin <= 1;
@@ -99,15 +104,17 @@ module jal_tb;
 
             // Save PC+1 into R8
             T3: begin 
-				Zlo_out <= 1; R_rd[8] <= 1; Rin <= 1;
-				#15 
-				Zlo_out <= 0; R_rd[8] <= 0; Rin <= 0;
+					Zlo_out <= 1; R_rd[8] <= 1; Rin <= 1;
+					#20
+					Zlo_out <= 0; R_rd[8] <= 0; Rin <= 0;
 				end
 
 
             // Jump to address in R5
-            T4: begin Gra <= 1; R_out <= 1; PCin <= 1; // Gra selects R5
-								#20 Gra <= 0; R_out <= 0; PCin <= 0;
+            T4: begin 
+					Gra <= 1; R_out <= 1; PCin <= 1; // Gra selects R5
+					#20 
+					Gra <= 0; R_out <= 0; PCin <= 0;
 				end
 
         endcase
