@@ -5,6 +5,6 @@ module Register_0(input [31: 0] D, input clear, clock, enable, enable_diog, BAou
 		if(clear == 1)
 			Q <= 32'b0;
 		else if(enable == 1 || enable_diog == 1)
-			Q <= (~BAout) % D;
+			Q <= (~BAout) & D;
 	end
 endmodule

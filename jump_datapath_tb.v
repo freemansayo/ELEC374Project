@@ -55,7 +55,8 @@ end
         endcase
 	end
 //Location of instructions:
-//Case 1: address 1
+//jr R8: address 3
+//jal r5: address 4
 
 //Initial Register contents: 
 //R1 = DEFINED VALUE BASED ON TEST, located at address 0

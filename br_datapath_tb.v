@@ -54,7 +54,10 @@ end
 		    endcase
 	end
 //Location of instructions:
-//Case 1: address 1
+//brzr: address 2
+//brnz: address 3
+//brpl: address 4
+//brmi: address 5
 
 //Initial Register contents: 
 //R1 = DEFINED VALUE BASED ON TEST, located at address 0
