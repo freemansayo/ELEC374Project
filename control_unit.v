@@ -1,35 +1,50 @@
-<<<<<<< HEAD
 //Control Unit Module
 `timescale 1ns / 10ps
-
 module control_unit (
     // Outputs
     output reg Gra, Grb, Grc, Rin, Rout, BAout, PCout, Zlowout, Zhighout, MDRout, LOout, HIout,
 	 In_Portout, Cout, PCin, Zin, IRin, Yin, MARin, MDRin, HIin, LOin, Out_Portin, IncPC, Read,
-	 Write, Clear, CONin, Run, ADD, SUB, MUL, DIV, SHR, SHRA, SHL, ROR, ROL, AND, OR, NEG, NOT,
-
+	 Write, Clear, CONin, Run, LOAD, LOADI, STORE, ADD, ADDI, SUB, MUL, DIV, SHR, SHRA, SHL, ROR, ROL, AND, ANDI, OR, ORI, NEG, NOT,
+	 BR, JR, JAL, IN, OUT, MFHI, MFLO, NOP, HALT, 
+	 
     // Inputs
     input [31:0] IR,
     input Clock, Reset, Stop, CON_FF
 );
 
 	//change all the states, not enough bits for the number of states that are needed
-	parameter reset_state = 4'b0000,
-				fetch0 = 4'b0001,//multiple fetches for different clock cycles
-				fetch1 = 4'b0010,//the bus can’t handle multiple data transfers simultaneously
-				fetch2 = 4'b0011,
-				ldi3 = 4'b0100,
-				ldi4 = 4'b0101,
-				add3 = 4'b0110,
-				add4 = 4'b0111,
-				add5 = 4'b1000
-				ld3 = 4'b1001,
-			   ld4 = 4'b1010,
-			   ld5 = 4'b1011,
-			   ld6 = 4'b1100,
-					ld7 = 4'b1101;
+	parameter reset_state = 8'b00000000, fetch0 = 8'b00000001, fetch1 = 8'b00000010, fetch2 = 8'b00000011,
+				ld3 = 8'b00000100,ld4 = 8'b00000101, ld5 = 8'b00000110,ld6 = 8'b00000111, ld7 = 8'b00001000, // Ends at 8
+				ldi3 = 8'b00001001, ldi4 = 8'b00001010, ldi5 = 8'b00001011, // Ends at 11 
+				st3 = 8'b00001100, st4 = 8'b00001101, st5 = 8'b00001110,  // Ends at 14
+				add3 = 8'b00001111, add4 = 8'b0001000, add5 = 8'b00010001, // Ends at 17
+				addi3 = 8'b00010010, addi4 = 8'b00010011, addi5 = 8'b0001 0100, // Ends at 20 
+				sub3 = 8'b00010101, sub4 = 8'b00010110, sub5 = 8'b00010111, // Ends at 23
+				mul3 = 8'b00011000 , mul4 = 8'b00011001, mul5 = 8'b00011010, mul6 = 00011011, // Ends at 27
+				div3 = 8'b00011100, div4 = 8'b00011101, div5 = 8'b00011110, div6 = 8'b00011111, // Ends at 31 
+				shr3 = 8'b00100000, shr4 = 8'b00100001, shr5 = 8'b00100010, // Ends at 34
+				shra3 = 8'b00100011, shra4 = 8'b00100100, shra5 = 8'b00100101, // Ends at 37
+				shl3 =  8'b00100110 shl4 = 8'b00100111, shl5 = 8'b00101000, // Ends at 40
+				ror3 = 8'b00101001, ror4 = 8'b00101010, ror5 = 8'b00101011, // Ends at 43
+				rol3 = 8'b00101100, rol4 = 8'b00101101, rol5 = 8'b00101110, // Ends at 46
+				and3 = 8'b00101111, and4 = 8'b00110000, and5 = 8'b00110001, // Ends at 49
+				andi3 = 8'b00110010, andi4 = 8'b00110011, andi5 = 8'b00110100, // Ends at 52
+				or3 = 8'b00110101, or4 = 8'b00110110, or5 = 8'b00110111, // Ends at 55
+				ori3 = 8'b00111000, ori4 = 8'b00111001, ori5 = 8'b00111010, //Ends at 58
+				neg3 = 8'b00111011, neg4 = 8'b00111100, //Ends at 60 
+				not3 = 8'b00111101 , not4 = 8'b00111110, // Ends at 62
+				br3 = 8'b00111111, br4 =8'b01000000, br5 = 8'b01000001, br6 = 8'b01000010, // Ends at 66
+				jr3 = 8'b01000011, // Ends at 67
+				jal3 = 8'b01000100, jal4 = 8'b01000101, // Ends at 69
+				mfhi3 = 8'b01000110, // Ends at 70
+				mflo3 = 8'b01000111, // Ends at 71
+				in3 = 8'b01001000, // Ends at 72
+				out3 = 8'b01001001, // Ends at 73
+				nop3 = 8'b01001010, // Ends at 74
+				halt3 = 8'b01001011; // Ends at 75
+
 						
-	reg [3:0] present_state = reset_state;
+	reg [7:0] present_state = reset_state;
 			
 			
 	//FSM		
@@ -55,7 +70,6 @@ module control_unit (
 					fetch2: begin
 						 //instruction decode based on opcode (IR[31:27])
 						 case (IR[31:27])
-							  
 							  5'b00000: present_state <= ld3;      //ld
 							  5'b00001: present_state <= ldi3;     //ldi
 							  5'b00010: present_state <= st3;      //st
@@ -88,6 +102,7 @@ module control_unit (
 						 endcase
 					end
 					//FSM instruction transition
+					
 					//LDI
 					ldi3: present_state <= ldi4;
 					ldi4: present_state <= fetch0;
@@ -264,28 +279,5 @@ module control_unit (
 	end
 
 	end
-=======
-module control_unit(	input clk, reset, stop, CON_FF,
-							input[31:0] IR_contents,
-							//Read-from-bus signals
-							output 	Rin, HIin, LOin, CONin, PCin, IRin, Yin, Zin, MARin, MDRin, Outport_in,
-							//Write-to-bus signals
-										Rout, BAout, Cout, PCout, MDRout, Zhiout, Zloout, HIout, LOout, Inport_out,
-							//General register selection signals
-										Gra, Grb, Grc, 
-							//ALU control signals (might also condense to one wire that takes on value of ALU opcode, might be less mess that way)
-										ADD, SUB, MUL, DIV, SHR, SHL, ROR, ROL, AND, OR, NEG,
-							//memory operation control signals
-										Read, Write,
-							//Program control(?) signals
-										Run, Clear
-							);
-
-	//Will follow Method 1 as described in the Phase 3 document
-	
-	
-	
-	
-	
 endmodule
->>>>>>> 34fcc2690a121fbf9a9a423556273ffa8ff68594
+
