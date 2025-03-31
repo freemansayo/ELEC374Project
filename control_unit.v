@@ -84,6 +84,7 @@ module control_unit (
 							  5'b01011: present_state <= shl3;     //shl
 							  5'b01100: present_state <= addi3;    //addi
 							  5'b01101: present_state <= andi3;    //andi
+							  
 							  5'b01110: present_state <= ori3;     //ori
 							  5'b01111: present_state <= div3;     //div
 							  5'b10000: present_state <= mul3;     //mul
@@ -236,6 +237,7 @@ module control_unit (
 			  endcase
 		 end
 		 
+		// Do the job for each state 
 		always @(present_state) begin
 			 //reset all control signals to 0
 			 {Gra, Grb, Grc, Rin, Rout, BAout,
@@ -246,38 +248,211 @@ module control_unit (
 
 		 case (present_state)
 
-			  
 				//MAR <- PC, and preparing PC + 1 -> Z
 			  fetch0: begin
-					PCout = 1;
-					MARin = 1;
-					IncPC = 1;
-					Zin = 1;
+					PCout <= 1;
+					MARin <= 1;
+					IncPC <= 1;
+					Zin <= 1; 
 			  end
 			
 				//PC ← PC + 1, and start reading instruction → MDR
 			  fetch1: begin
-					Zlowout = 1;
-					PCin = 1;
-					Read = 1;
-					MDRin = 1;
+					PCout <= 0;
+					MARin <= 0;
+					IncPC <= 0;
+					Zin <= 0; 
+					Zlowout <= 1;
+					PCin <= 1;
+					Read <= 1;
+					MDRin <= 1;
 			  end
 			  
 			  
 				//IR ← MDR — the instruction is ready to be decoded in the next cycle.
 			  fetch2: begin
-					MDRout = 1;
-					IRin = 1;
+			  		Zlowout <= 0;
+					PCin <= 0;
+					Read <= 0;
+					MDRin <= 0;
+					MDRout <= 1;
+					IRin <= 1;
 			  end
 
-			//add cases for each instruction
-
-			  default: begin
-			  end
-
+				//ORI Control Sequences 
+				ori3: begin
+					MDRout <= 0; IRin <= 0;
+					Grb <= 1; R_out <= 1; Yin <= 1;
+				end 
+				
+				ori4: begin
+					Grb <= 0; R_out <= 0; Yin <= 0;
+					C_out <= 1;  Zlowin <= 1; ORI <= 1; 
+				end 
+				
+				ori5: begin 
+					C_out <= 0;  Zlowin <= 0; ORI <= 0; 
+					Zlo_out <= 1; Gra <= 1; Rin <= 1;
+					#20
+					Zlo_out <= 0; Gra <= 0; Rin <= 0;
+				end 
+				
+				//div control sequences
+				div3: begin
+					MDRout <= 0; IRin  <= 0; 
+					Gra <= 1; Yin <= 1; Rout <= 1; 
+				end
+				
+				div4: begin
+					Gra <= 0; Yin <= 0; Rout <= 0;  
+					Grb <= 1; Zlowin <= 1; Rout <= 1; DIV <= 1; 
+				end 
+				
+				div5: begin
+					Grb <= 0; Zlowin <= 0; Rout <= 0; DIV <= 0; 
+					Zlowout <= 1; LOin <= 1; 
+				end
+				
+				div6: begin 
+					Zlowout <=0; LOin <= 0; 
+					Zhighout <= 1; HIin <= 1; 
+					#25 
+					zhighout <= 0; HIin <= 0;
+				end
+				
+				//Mul Control Sequences 
+				mul3: begin
+					MDRout <= 0; IRin <= 0; 
+					Yin <= 1; Rout <= 1; Gra <= 1; 
+				end
+				
+				mul4: begin 
+					Yin <= 0; Rout <= 0; Gra <= 0; 
+					Zin <= 1; Rout <= 1; Grb <= 1; MUL <= 1; 
+				end
+					
+				mul5: begin
+					Grb <= 0; Zlowin <= 0; Rout <= 0; MUL <= 0;  
+					Zlowout <= 1; LOin <= 1; 
+				end
+					
+				mul6: begin 
+					Zlowout <= 0; LOin <= 0; 
+					Zhighout <= 1; HIin <= 1;
+					#25
+					Zhighout <= 0; HIin <= 0;
+				end 
+				
+				// Neg Control Sequence
+				neg3: begin
+					MDRout <= 0; IRin <= 0; 
+					Rout <= 1; Zin <= 1; NEG <= 1; 
+				end
+				
+				neg4: begin 
+					Rout <= 0; Zin <= 0; 
+					Zlowout <= 1; Rin <= 1; 
+					#20 
+					Zlowout <= 0; Rin <= 0; 
+				end
+				
+				// Not Control Sequence
+				not3: begin 
+					MDRout <= 0; IRin <= 0; 
+					NEG <= 1; Zin <= 1; Rout <= 1; 
+				end
+				
+				not4: begin 
+					NEG <= 0; Zin <= 0; Rout <= 0; 
+					Zlowout <= 1; Rin <= 1; 
+					#20
+					Zlowout <= 1; Rin <= 1; 
+				end
+				
+				// Branch Control Sequence
+				br3: begin
+					MDRout <= 0; IRin <= 0; 
+					Gra <= 1; Rout <= 1; CONin <= 1; 
+				end
+				
+				br4: begin
+					Gra <= 0; Rout <= 0; CONin <= 0; 
+					PCout <= 1; Yin <= 1; 
+				end 
+				
+				br5: begin 
+					PCout <= 0; Yin <= 0; 
+					Cout <= 1; ADD <= 1; Zin <= 1; 
+				end	
+				
+				br6: begin 
+					Cout <= 0; ADD <= 0; Zin <= 0;
+					Zlowout <= 1; PCin <= CONin; 
+					#20 
+					Zlowout <= 0; PCin <= 0; 
+				end 	
+				
+				// Jump Control Sequence
+				jr3: begin 
+					MDRout <= 0; IRin <= 0; 
+					Gra <= 1; Rout <= 1; PCin <= 1; 
+					#20 
+					Gra <= 0; Rout <= 0; PCin <= 0; 
+				end 
+				
+				jal3: begin
+					MDRout <= 0; IRin <= 0; 
+					Zlo_out <= 1; Rin <= 1;
+				end 
+				
+				jal4: begin 
+					Zlo_out <= 0; Rin <= 0; 
+					Gra <= 1; R_out <= 1; PCin <= 1; 
+					#20 
+					Gra <= 0; R_out <= 0; PCin <= 0;
+				
+				end
+				
+				//mfhi and mflo control sequences
+				mfhi3: begin 
+					MDRout <= 0; IRin <= 0; 
+					Gra <= 1; Rin <= 1; HI_out <= 1;
+					#20
+					Gra <= 0; Rin <= 0; HI_out <= 0;
+				end		
+				
+				mflo3: begin 
+					MDRout <= 0; IRin <= 0; 
+					Gra <= 1; Rin <= 1; LO_out <= 1;
+					#20
+					Gra <= 0; Rin <= 0; LO_out <= 0;
+				end
+				
+				//in and out control sequence
+				in3: begin 
+					MDRout <= 0; IRin <= 0; 
+					Gra <= 1; Rin <= 1; In_out <= 1;
+					#20
+					Gra <= 0; Rin <= 0; In_out <= 0;
+				end
+				
+				out3: begin 
+					MDRout <= 0; IRin <= 0; 
+					Gra <= 1; R_out <= 1; Out_rd <= 1;
+					#20
+					Gra <= 0; R_out <= 0; Out_rd <= 0;
+				end
+				
+				// NOP control sequence
+				nop3: begin 
+				end
+				
+				// Halt control sequence
+				halt3: begin 
+					Run <= 0;  
+				end
+				
 		 endcase
-	end
-
 	end
 endmodule
 
