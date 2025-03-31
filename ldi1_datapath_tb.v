@@ -17,13 +17,13 @@ module ldi1_datapath_tb;
 	
 	//Want to view following signals on monitor
 	wire [8:0] MAR_v;
-	wire [31:0] MDR_v, r2_v, r4_v, r6_v, IR_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
+	wire [31:0] MDR_v, r2_v, r4_v, r6_v, IR_v, C_v, PC_v, Y_v, Zlo_v, BusMuxOut_v, regControl_v;
 	
 	
 	Datapath DUT(.R_rd_diog(R_rd), .R_wrt_diog(R_wrt), .Rin(Rin), .R_out(R_out), .HI_out(HI_out), .LO_out(LO_out), .Zhi_out(Zhi_out), .Zlo_out(Zlo_out), .PC_out(PC_out), .MDR_out(MDR_out), 
 					 .MAR_out(MAR_out), .In_out(In_out), .C_out(C_out), .MAR_rd(MARin), .Zlo_rd(Zlowin), .PC_rd(PCin), .MDR_rd(MDRin), .IR_rd(IRin), .Y_rd(Yin),
 					 .IncPC(IncPC), .Read(Read), .Write(Write), .clk(clk), .clr(clear), .Gra(Gra), .Grb(Grb), .Grc(Grc), .BAout(BAout),
-					 .r2_view(r2_v), .r4_view(r4_v), .r6_view(r6_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
+					 .r2_view(r2_v), .r4_view(r4_v), .r6_view(r6_v), .C_extended_view(C_v), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
 					 .PC_view(PC_v), .IR_view(IR_v));
 	// add test logic here
 initial 

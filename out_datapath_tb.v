@@ -26,7 +26,7 @@ module out_datapath_tb;
 	wire CON_out;
 	
 	
-	Datapath DUT(.R_rd_diog(R_rd), .R_wrt_diog(R_wrt), .Rin(Rin), .HI_rd(HI_rd), .CONin(CONin), .R_out(R_out), .HI_out(HI_out), .LO_out(LO_out), .Out_out(out_out), .Zhi_out(Zhi_out), .Zlo_out(Zlo_out), .PC_out(PC_out), .MDR_out(MDR_out), 
+	Datapath DUT(.R_rd_diog(R_rd), .R_wrt_diog(R_wrt), .Rin(Rin), .HI_rd(HI_rd), .CONin(CONin), .R_out(R_out), .HI_out(HI_out), .LO_out(LO_out), .Out_out(Out_out), .Zhi_out(Zhi_out), .Zlo_out(Zlo_out), .PC_out(PC_out), .MDR_out(MDR_out), 
 					 .MAR_out(MAR_out), .In_out(In_out), .C_out(C_out), .CON_output(CON_out), .MAR_rd(MARin), .Zlo_rd(Zlowin), .PC_rd(PCin), .MDR_rd(MDRin), .IR_rd(IRin), .Y_rd(Yin), .Out_rd(Out_rd),
 					 .IncPC(IncPC), .Read(Read), .Write(Write), .clk(clk), .clr(clear), .Gra(Gra), .Grb(Grb), .Grc(Grc), .BAout(BAout),
 					 .r6_view(r6_v), .Outport_view(Out_v), .In_input(Input_unit), .Y_view(Y_v), .Zlo_view(Zlo_v), .MDR_view(MDR_v), .MAR_view(MAR_v), .BusMuxOut(BusMuxOut_v), .regControl_view(regControl_v),
