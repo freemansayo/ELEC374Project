@@ -7,7 +7,7 @@ module memory(input [31:0] Datain, input [8:0] Address, input Write, clk,
 		//Note: Command Opcodes are all stored at the start of memory, check init.hex for exact addresses
 		//Opcodes are written in order they appear in CPU_specification lab file
 		initial begin
-			$readmemh("init_io.hex", memory);
+			$readmemh("init_control_unit.hex", memory);
 		end
 		
 		always@ (posedge clk) begin
