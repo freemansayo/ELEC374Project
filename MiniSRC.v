@@ -1,6 +1,6 @@
 //acts as Top-level design object, holds the control unit and datapath modules, facilitates communication between the two.
 `timescale 1ns/10ps
-module MiniSRC(input testicle/*input reset, stop*/);
+module MiniSRC(input reset, stop);
 	
 	//set up system clock
 	reg clk;

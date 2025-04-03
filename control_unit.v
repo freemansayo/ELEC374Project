@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 `timescale 1ns/10ps
 module control_unit(	input clk, reset, stop, CON_FF,
 							input[31:0] IR_contents,
